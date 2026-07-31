@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - Eliane Fashion</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h1>Painel Administrativo</h1>
+    <button onclick="login()">Entrar com Google</button>
+    <div id="admin-content" style="display:none;">
+        <h2>Produtos</h2>
+        <button onclick="novoProduto()">Novo Produto</button>
+        <div id="lista-produtos"></div>
+    </div>
+    <script>
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            projectId: "SEU_PROJETO",
+            storageBucket: "SEU_PROJETO.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abc123"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function login() {
+            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+                .then(() => {
+                    document.getElementById('admin-content').style.display = 'block';
+                    carregarProdutos();
+                });
+        }
+
+        async function carregarProdutos() {
+            const snapshot = await db.collection('produtos').get();
+            const lista = document.getElementById('lista-produtos');
+            lista.innerHTML = snapshot.docs.map(doc =>
+                `<p>${doc.data().nome} - R$ ${doc.data().preco}</p>`
+            ).join('');
+        }
+
+        function novoProduto() {
+            const nome = prompt('Nome do produto:');
+            const preco = prompt('Preço:');
+            if (nome && preco) {
+                db.collection('produtos').add({ nome, preco: parseFloat(preco), estoque: 10 });
+                carregarProdutos();
+            }
+        }
+    </script>
+</body>
+</html>
