@@ -1,3 +1,7 @@
+> **Status: template legado.**
+>
+> A implementação atual da Eliane Fashion é mantida em `Pabloguilherme01/eliane-fashion-site`. Este repositório preserva uma arquitetura anterior baseada em Netlify/Firebase e não deve ser tratado como fonte de produção.
+
 # Eliane Fashion - Template Netlify
 
 Template completo para loja virtual com:
