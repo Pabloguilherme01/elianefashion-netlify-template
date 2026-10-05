@@ -1,4 +1,4 @@
-> **Status: template legado.**
+> **Status: template legado, corrigido para referência técnica.**
 >
 > A implementação atual da Eliane Fashion é mantida em `Pabloguilherme01/eliane-fashion-site`. Este repositório preserva uma arquitetura anterior baseada em Netlify/Firebase e não deve ser tratado como fonte de produção.
 
@@ -27,3 +27,13 @@ Template completo para loja virtual com:
 | `ADMIN_UID` | UID do usuário admin |
 | `URL_BASE` | URL do site |
 | `INSTAGRAM_TOKEN` | Token do Instagram (opcional) |
+## Estrutura normalizada
+
+- `index.html` — página pública do exemplo.
+- `admin/index.html` — painel administrativo de demonstração.
+- `functions/` — Netlify Functions.
+- `netlify.toml` — configuração de deploy.
+
+O ZIP duplicado e nomes com extensões repetidas foram removidos. As funções de estoque exigem autenticação administrativa e o checkout deriva nome/preço/estoque do Firestore, em vez de confiar em valores enviados pelo navegador.
+
+> Este continua sendo um template legado. O produto mantido é `Pabloguilherme01/eliane-fashion-site`.
