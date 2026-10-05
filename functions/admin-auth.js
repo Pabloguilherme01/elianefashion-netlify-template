@@ -1,25 +1,15 @@
-const admin = require('firebase-admin');
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    })
-  });
-}
+const { requireAdmin } = require('./_firebase');
 
 exports.handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers: { Allow: 'POST' }, body: JSON.stringify({ error: 'Método não permitido' }) };
+  }
+
   try {
-    const token = event.headers.authorization?.split('Bearer ')[1];
-    if (!token) return { statusCode: 401, body: JSON.stringify({ error: 'Não autorizado' }) };
-    const decoded = await admin.auth().verifyIdToken(token);
-    if (decoded.uid !== process.env.ADMIN_UID) {
-      return { statusCode: 403, body: JSON.stringify({ error: 'Acesso negado' }) };
-    }
+    await requireAdmin(event);
     return { statusCode: 200, body: JSON.stringify({ admin: true }) };
   } catch (error) {
-    return { statusCode: 401, body: JSON.stringify({ error: error.message }) };
+    const statusCode = error.statusCode === 403 ? 403 : 401;
+    return { statusCode, body: JSON.stringify({ error: statusCode === 403 ? 'Acesso negado' : 'Não autorizado' }) };
   }
 };
