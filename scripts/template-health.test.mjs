@@ -29,3 +29,12 @@ test('serverless functions are syntactically valid CommonJS', () => {
     assert.doesNotThrow(() => new Function('require', 'exports', 'module', source), file);
   }
 });
+
+
+test('payment function uses current Mercado Pago client API', () => {
+  const source = readFileSync(join(root, 'functions', 'create-payment.js'), 'utf8');
+  assert.match(source, /MercadoPagoConfig/);
+  assert.match(source, /new Preference\(client\)/);
+  assert.doesNotMatch(source, /mercadopago\.configure/);
+  assert.doesNotMatch(source, /response\.body\.id/);
+});
