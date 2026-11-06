@@ -14,7 +14,9 @@ function parseItems(event) {
   const totals = new Map();
   for (const item of body.items) {
     const id = typeof item?.id === 'string' ? item.id.trim() : '';
-    const quantity = Number(item?.quantidade);
+    const rawQuantity = item?.quantidade;
+    const quantity = typeof rawQuantity === 'number' ? rawQuantity :
+      typeof rawQuantity === 'string' && /^\\d+$/.test(rawQuantity.trim()) ? Number(rawQuantity) : NaN;
     if (!id || id.length > 128 || id.includes('/') ||
         !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
       throw new Error('INVALID_ITEMS');
