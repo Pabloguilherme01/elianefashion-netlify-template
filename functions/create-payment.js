@@ -2,18 +2,29 @@ const { MercadoPagoConfig, Preference } = require('mercadopago');
 const { getAdmin } = require('./_firebase');
 
 function parseItems(event) {
-  const body = JSON.parse(event.body || '{}');
-  if (!Array.isArray(body.items) || body.items.length === 0 || body.items.length > 20) {
+  let body;
+  try {
+    body = JSON.parse(event.body || '{}');
+  } catch {
     throw new Error('INVALID_ITEMS');
   }
-  return body.items.map((item) => {
+  if (!body || !Array.isArray(body.items) || body.items.length === 0 || body.items.length > 20) {
+    throw new Error('INVALID_ITEMS');
+  }
+  const totals = new Map();
+  for (const item of body.items) {
     const id = typeof item?.id === 'string' ? item.id.trim() : '';
     const quantity = Number(item?.quantidade);
-    if (!id || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
+    if (!id || id.length > 128 || id.includes('/') ||
+        !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
       throw new Error('INVALID_ITEMS');
     }
-    return { id, quantity };
-  });
+    // Linhas repetidas do mesmo produto devem disputar o estoque como uma única compra.
+    const total = (totals.get(id) || 0) + quantity;
+    if (total > 20) throw new Error('INVALID_ITEMS');
+    totals.set(id, total);
+  }
+  return [...totals].map(([id, quantity]) => ({ id, quantity }));
 }
 
 exports.handler = async (event) => {
