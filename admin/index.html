@@ -39,9 +39,14 @@
         async function carregarProdutos() {
             const snapshot = await db.collection('produtos').get();
             const lista = document.getElementById('lista-produtos');
-            lista.innerHTML = snapshot.docs.map(doc =>
-                `<p>${doc.data().nome} - R$ ${doc.data().preco}</p>`
-            ).join('');
+            // Firestore é entrada não confiável: inserir texto, nunca HTML.
+            lista.replaceChildren();
+            for (const doc of snapshot.docs) {
+                const produto = doc.data() || {};
+                const linha = document.createElement('p');
+                linha.textContent = String(produto.nome ?? '') + ' - R$ ' + String(produto.preco ?? '');
+                lista.appendChild(linha);
+            }
         }
 
         function novoProduto() {
